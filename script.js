@@ -1,37 +1,48 @@
 // Logik für die "Wörter merken"-Übung.
 // Die Wortliste selbst steht in words.js (Variable WORTLISTE).
+//
+// Ablauf:
+//  1. Alle 10 Wörter werden nacheinander kurz gezeigt (Anzeige-Bildschirm).
+//  2. Erst danach schreibt die Person alle Wörter auf, an die sie sich
+//     erinnert - ein Wort pro Zeile, Reihenfolge egal (Erinnerungs-Bildschirm).
+//  3. Die aufgeschriebenen Wörter werden den gezeigten Wörtern automatisch
+//     zugeordnet (auch bei kleinen Schreibfehlern) und ausgewertet.
 
 const ANZAHL_WOERTER = 10;
+const PAUSE_ZWISCHEN_WOERTERN_MS = 400;
 
 // -- Bildschirme -------------------------------------------------------
 const startScreen = document.getElementById("start-screen");
-const gameScreen = document.getElementById("game-screen");
+const showScreenEl = document.getElementById("show-screen");
+const recallScreen = document.getElementById("recall-screen");
 const resultScreen = document.getElementById("result-screen");
 
 // -- Start-Bildschirm ----------------------------------------------------
 const durationSelect = document.getElementById("duration-select");
 const startBtn = document.getElementById("start-btn");
 
-// -- Übungs-Bildschirm ---------------------------------------------------
+// -- Anzeige-Bildschirm ---------------------------------------------------
 const progressLabel = document.getElementById("progress-label");
 const wordDisplay = document.getElementById("word-display");
-const answerForm = document.getElementById("answer-form");
-const answerInput = document.getElementById("answer-input");
-const submitBtn = document.getElementById("submit-btn");
+
+// -- Erinnerungs-Bildschirm ------------------------------------------------
+const recallForm = document.getElementById("recall-form");
+const recallInput = document.getElementById("recall-input");
 
 // -- Ergebnis-Bildschirm --------------------------------------------------
 const scoreLabel = document.getElementById("score-label");
 const resultBody = document.getElementById("result-body");
+const leftoverBlock = document.getElementById("leftover-block");
+const leftoverList = document.getElementById("leftover-list");
 const restartBtn = document.getElementById("restart-btn");
 
 // -- Zustand --------------------------------------------------------------
 let sessionWords = [];
-let currentIndex = 0;
-let results = [];
-let wordShownTimer = null;
+let showIndex = 0;
+let showTimer = null;
 
 function showScreen(screen) {
-  [startScreen, gameScreen, resultScreen].forEach((s) => s.classList.add("hidden"));
+  [startScreen, showScreenEl, recallScreen, resultScreen].forEach((s) => s.classList.add("hidden"));
   screen.classList.remove("hidden");
 }
 
@@ -52,66 +63,43 @@ function pickSessionWords() {
 
 function startSession() {
   sessionWords = pickSessionWords();
-  currentIndex = 0;
-  results = [];
-  showScreen(gameScreen);
-  showNextWord();
+  showIndex = 0;
+  showScreen(showScreenEl);
+  showNextWordInSequence();
 }
 
-function showNextWord() {
-  clearTimeout(wordShownTimer);
+function showNextWordInSequence() {
+  clearTimeout(showTimer);
 
-  if (currentIndex >= sessionWords.length) {
-    finishSession();
+  if (showIndex >= sessionWords.length) {
+    startRecallPhase();
     return;
   }
 
-  const word = sessionWords[currentIndex];
+  const word = sessionWords[showIndex];
   const durationSeconds = parseInt(durationSelect.value, 10) || 3;
 
-  progressLabel.textContent = `Wort ${currentIndex + 1} von ${sessionWords.length}`;
-
-  // Wort anzeigen, Eingabe währenddessen sperren
+  progressLabel.textContent = `Wort ${showIndex + 1} von ${sessionWords.length}`;
   wordDisplay.textContent = word;
-  answerInput.value = "";
-  answerInput.disabled = true;
-  submitBtn.disabled = true;
 
-  wordShownTimer = setTimeout(() => {
+  showTimer = setTimeout(() => {
     wordDisplay.textContent = "";
-    answerInput.disabled = false;
-    submitBtn.disabled = false;
-    answerInput.focus();
+    showIndex += 1;
+    showTimer = setTimeout(showNextWordInSequence, PAUSE_ZWISCHEN_WOERTERN_MS);
   }, durationSeconds * 1000);
 }
 
-function normalize(text) {
-  return text.trim().toLowerCase();
-}
-
-function handleAnswerSubmit(event) {
-  event.preventDefault();
-
-  if (answerInput.disabled) {
-    // Wort ist noch sichtbar, es kann noch nichts abgeschickt werden.
-    return;
-  }
-
-  const word = sessionWords[currentIndex];
-  const answer = answerInput.value;
-  const correct = normalize(answer) === normalize(word);
-
-  results.push({ word, answer, correct });
-
-  currentIndex += 1;
-  showNextWord();
+function startRecallPhase() {
+  recallInput.value = "";
+  showScreen(recallScreen);
+  recallInput.focus();
 }
 
 // --------------------------------------------------------------------
 // Buchstaben-Vergleich (Levenshtein-Alignment)
 //
-// Vergleicht das Zielwort mit der eingegebenen Antwort Buchstabe für
-// Buchstabe und markiert:
+// Vergleicht ein Zielwort mit einer Antwort Buchstabe für Buchstabe und
+// markiert:
 //  - richtige Buchstaben normal
 //  - falsche Buchstaben (statt eines anderen getippt)   -> rot, unterstrichen
 //  - überflüssige Buchstaben (zu viel getippt)           -> orange, durchgestrichen
@@ -177,6 +165,16 @@ function closenessThreshold(word) {
   return 3;
 }
 
+// Wie weit darf eine aufgeschriebene Antwort von einem Zielwort entfernt
+// sein, damit sie überhaupt noch als (versuchte) Antwort auf DIESES Wort
+// gilt? Etwas großzügiger als die "fast richtig"-Grenze, damit auch
+// größere Schreibfehler noch zugeordnet werden - aber nicht beliebig
+// weit, damit ein völlig anderes Wort nicht einfach dem nächstbesten
+// noch offenen Zielwort zugeordnet wird.
+function maxMatchDistance(word) {
+  return closenessThreshold(word) + 1;
+}
+
 function classifyResult(word, distance) {
   if (distance === 0) {
     return { cls: "correct", label: "Richtig", icon: "✓" };
@@ -194,10 +192,6 @@ function escapeHtml(text) {
 }
 
 function buildDiffHtml(word, answerTrimmed, ops) {
-  if (answerTrimmed === "") {
-    return '<span class="no-answer">(keine Antwort)</span>';
-  }
-
   return ops
     .map((op) => {
       if (op.type === "match") {
@@ -216,40 +210,124 @@ function buildDiffHtml(word, answerTrimmed, ops) {
     .join("");
 }
 
-function finishSession() {
-  const correctCount = results.filter((r) => r.correct).length;
-  scoreLabel.textContent = `${correctCount} von ${results.length} Wörtern genau richtig geschrieben`;
+// --------------------------------------------------------------------
+// Zuordnung: welche aufgeschriebene Antwort gehört zu welchem gezeigten
+// Wort? Da beim freien Erinnern die Reihenfolge nicht feststeht, wird
+// jede Antwort mit jedem noch nicht zugeordneten Wort verglichen und
+// die jeweils naheliegendste Zuordnung gewählt (kleinster Buchstaben-
+// Abstand zuerst). Antworten, die zu keinem Wort mehr nah genug passen,
+// bleiben als "sonstige Antworten" übrig.
+// --------------------------------------------------------------------
+
+function matchAnswersToWords(targets, rawAnswers) {
+  const candidates = [];
+
+  rawAnswers.forEach((answer, aIdx) => {
+    targets.forEach((word, tIdx) => {
+      const { distance } = computeAlignment(word, answer);
+      if (distance <= maxMatchDistance(word)) {
+        candidates.push({ aIdx, tIdx, distance });
+      }
+    });
+  });
+
+  candidates.sort((a, b) => a.distance - b.distance);
+
+  const assignedAnswerForTarget = new Array(targets.length).fill(null);
+  const answerIsUsed = new Array(rawAnswers.length).fill(false);
+
+  candidates.forEach((c) => {
+    if (assignedAnswerForTarget[c.tIdx] === null && !answerIsUsed[c.aIdx]) {
+      assignedAnswerForTarget[c.tIdx] = c.aIdx;
+      answerIsUsed[c.aIdx] = true;
+    }
+  });
+
+  const results = targets.map((word, tIdx) => {
+    const aIdx = assignedAnswerForTarget[tIdx];
+    return { word, answer: aIdx === null ? null : rawAnswers[aIdx] };
+  });
+
+  const leftoverAnswers = rawAnswers.filter((_, aIdx) => !answerIsUsed[aIdx]);
+
+  return { results, leftoverAnswers };
+}
+
+function parseRecallInput(text) {
+  return text
+    .split(/\r?\n|,/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+function handleRecallSubmit(event) {
+  event.preventDefault();
+
+  const rawAnswers = parseRecallInput(recallInput.value);
+  const { results, leftoverAnswers } = matchAnswersToWords(sessionWords, rawAnswers);
+  showResults(results, leftoverAnswers);
+}
+
+function showResults(results, leftoverAnswers) {
+  const rows = results.map((r) => {
+    if (r.answer === null) {
+      return {
+        word: r.word,
+        status: { cls: "missing", label: "Nicht erinnert", icon: "–" },
+        diffHtml: '<span class="no-answer">(nicht genannt)</span>',
+      };
+    }
+    const { distance, ops, answerTrimmed } = computeAlignment(r.word, r.answer);
+    const status = classifyResult(r.word, distance);
+    return {
+      word: r.word,
+      status,
+      diffHtml: buildDiffHtml(r.word, answerTrimmed, ops),
+    };
+  });
+
+  const correctCount = rows.filter((row) => row.status.cls === "correct").length;
+  scoreLabel.textContent = `${correctCount} von ${rows.length} Wörtern genau richtig erinnert`;
 
   resultBody.innerHTML = "";
-  results.forEach((r) => {
-    const { distance, ops, answerTrimmed } = computeAlignment(r.word, r.answer || "");
-    const status = classifyResult(r.word, distance);
-
-    const row = document.createElement("tr");
-    row.className = "result-row " + status.cls;
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+    tr.className = "result-row " + row.status.cls;
 
     const wordCell = document.createElement("td");
-    wordCell.textContent = r.word;
+    wordCell.textContent = row.word;
 
     const answerCell = document.createElement("td");
     answerCell.className = "diff-cell";
-    answerCell.innerHTML = buildDiffHtml(r.word, answerTrimmed, ops);
+    answerCell.innerHTML = row.diffHtml;
 
     const markCell = document.createElement("td");
     const mark = document.createElement("span");
-    mark.className = "result-mark " + status.cls;
-    mark.textContent = `${status.icon} ${status.label}`;
+    mark.className = "result-mark " + row.status.cls;
+    mark.textContent = `${row.status.icon} ${row.status.label}`;
     markCell.appendChild(mark);
 
-    row.appendChild(wordCell);
-    row.appendChild(answerCell);
-    row.appendChild(markCell);
-    resultBody.appendChild(row);
+    tr.appendChild(wordCell);
+    tr.appendChild(answerCell);
+    tr.appendChild(markCell);
+    resultBody.appendChild(tr);
   });
+
+  leftoverList.innerHTML = "";
+  if (leftoverAnswers.length > 0) {
+    leftoverAnswers.forEach((answer) => {
+      const li = document.createElement("li");
+      li.textContent = answer;
+      leftoverList.appendChild(li);
+    });
+    leftoverBlock.classList.remove("hidden");
+  } else {
+    leftoverBlock.classList.add("hidden");
+  }
 
   showScreen(resultScreen);
 }
 
 startBtn.addEventListener("click", startSession);
-answerForm.addEventListener("submit", handleAnswerSubmit);
+recallForm.addEventListener("submit", handleRecallSubmit);
 restartBtn.addEventListener("click", () => showScreen(startScreen));

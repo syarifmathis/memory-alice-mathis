@@ -11,6 +11,8 @@
   --wrong-bg: #fee2e2;
   --close: #b45309;
   --close-bg: #fef3c7;
+  --missing: #6b7280;
+  --missing-bg: #f3f4f6;
   --border: #e5e7eb;
 }
 
@@ -123,32 +125,30 @@ h1 {
   word-break: break-word;
 }
 
-.answer-form {
+.recall-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.answer-form label {
+.recall-form label {
   font-size: 1.05rem;
 }
 
-.answer-form input {
-  font-size: 1.3rem;
+.recall-form textarea {
+  font-size: 1.15rem;
   padding: 14px 16px;
   border-radius: 10px;
   border: 2px solid var(--border);
   width: 100%;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.5;
 }
 
-.answer-form input:focus {
+.recall-form textarea:focus {
   outline: none;
   border-color: var(--accent);
-}
-
-.answer-form input:disabled {
-  background: #f3f4f6;
-  color: var(--muted);
 }
 
 .score {
@@ -186,6 +186,10 @@ h1 {
   background: var(--close-bg);
 }
 
+.result-row.missing td {
+  background: var(--missing-bg);
+}
+
 .result-row.wrong td {
   background: var(--wrong-bg);
 }
@@ -203,8 +207,39 @@ h1 {
   color: var(--close);
 }
 
+.result-mark.missing {
+  color: var(--missing);
+}
+
 .result-mark.wrong {
   color: var(--wrong);
+}
+
+.leftover-block {
+  margin: -6px 0 24px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+}
+
+.leftover-block.hidden {
+  display: none;
+}
+
+.leftover-block h2 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.leftover-block .intro {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.leftover-block ul {
+  margin: 0;
+  padding-left: 20px;
 }
 
 .diff-cell {

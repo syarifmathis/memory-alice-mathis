@@ -1,9 +1,11 @@
 # Wörter merken – Übung
 
 Eine einfache Web-App für logopädische Übungen: 10 deutsche Wörter werden
-nacheinander kurz gezeigt, und die Person soll aufschreiben, welches Wort
-sie gesehen hat. Am Ende gibt es eine Auswertung mit Punktzahl und
-Wort-für-Wort-Vergleich.
+nacheinander kurz gezeigt. Erst wenn alle zehn gezeigt wurden, schreibt
+die Person alle Wörter auf, an die sie sich erinnert (freies Erinnern,
+Reihenfolge egal). Die aufgeschriebenen Wörter werden automatisch den
+gezeigten Wörtern zugeordnet — auch bei kleinen Schreibfehlern — und am
+Ende gibt es eine Auswertung mit Punktzahl und Wort-für-Wort-Vergleich.
 
 Die App läuft komplett im Browser (kein Server, keine Datenbank) und
 besteht nur aus HTML, CSS und JavaScript.
