@@ -64,12 +64,18 @@
         <thead>
           <tr>
             <th>Wort</th>
-            <th>Antwort</th>
-            <th>Richtig?</th>
+            <th>Antwort (Vergleich)</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody id="result-body"></tbody>
       </table>
+
+      <p class="legend">
+        <span class="d-sub">rot, unterstrichen</span> = falscher Buchstabe ·
+        <span class="d-ins">orange, durchgestrichen</span> = überflüssiger Buchstabe ·
+        <span class="d-del">(grau in Klammern)</span> = fehlender Buchstabe
+      </p>
 
       <button id="restart-btn" class="primary-btn">Neue Übung starten</button>
     </section>

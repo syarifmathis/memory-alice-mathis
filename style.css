@@ -9,6 +9,8 @@
   --correct-bg: #dcfce7;
   --wrong: #b91c1c;
   --wrong-bg: #fee2e2;
+  --close: #b45309;
+  --close-bg: #fef3c7;
   --border: #e5e7eb;
 }
 
@@ -180,20 +182,74 @@ h1 {
   background: var(--correct-bg);
 }
 
+.result-row.close td {
+  background: var(--close-bg);
+}
+
 .result-row.wrong td {
   background: var(--wrong-bg);
 }
 
 .result-mark {
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .result-mark.correct {
   color: var(--correct);
 }
 
+.result-mark.close {
+  color: var(--close);
+}
+
 .result-mark.wrong {
   color: var(--wrong);
+}
+
+.diff-cell {
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+
+.d-match {
+  color: var(--text);
+}
+
+.d-sub {
+  color: var(--wrong);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--wrong);
+}
+
+.d-ins {
+  color: var(--close);
+  font-weight: 700;
+  text-decoration: line-through;
+}
+
+.d-del {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.no-answer {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.legend {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: -10px 0 20px;
+}
+
+.legend .d-sub,
+.legend .d-ins,
+.legend .d-del {
+  font-style: normal;
 }
 
 @media (max-width: 480px) {
