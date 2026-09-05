@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wörter merken – Übung</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="card">
+
+    <!-- START-BILDSCHIRM -->
+    <section id="start-screen" class="screen">
+      <h1>Wörter merken</h1>
+      <p class="intro">
+        Es werden nacheinander 10 deutsche Wörter gezeigt. Jedes Wort ist
+        kurz sichtbar und verschwindet dann wieder — anschließend soll
+        aufgeschrieben werden, welches Wort zu sehen war.
+      </p>
+
+      <label class="option">
+        Wie lange soll jedes Wort sichtbar sein?
+        <select id="duration-select">
+          <option value="2">2 Sekunden</option>
+          <option value="3" selected>3 Sekunden</option>
+          <option value="5">5 Sekunden</option>
+          <option value="8">8 Sekunden</option>
+        </select>
+      </label>
+
+      <button id="start-btn" class="primary-btn">Übung starten</button>
+    </section>
+
+    <!-- ÜBUNGS-BILDSCHIRM -->
+    <section id="game-screen" class="screen hidden">
+      <p class="progress" id="progress-label">Wort 1 von 10</p>
+
+      <div class="word-stage">
+        <p id="word-display" class="word-display"></p>
+      </div>
+
+      <form id="answer-form" class="answer-form">
+        <label for="answer-input">Was haben Sie gesehen?</label>
+        <input
+          type="text"
+          id="answer-input"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          disabled
+        >
+        <button type="submit" id="submit-btn" class="primary-btn" disabled>Weiter</button>
+      </form>
+    </section>
+
+    <!-- ERGEBNIS-BILDSCHIRM -->
+    <section id="result-screen" class="screen hidden">
+      <h1>Ergebnis</h1>
+      <p class="score" id="score-label"></p>
+
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>Wort</th>
+            <th>Antwort</th>
+            <th>Richtig?</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
+
+      <button id="restart-btn" class="primary-btn">Neue Übung starten</button>
+    </section>
+
+  </main>
+
+  <script src="words.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

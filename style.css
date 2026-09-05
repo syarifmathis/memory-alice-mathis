@@ -1,0 +1,207 @@
+:root {
+  --bg: #f4f6f9;
+  --card-bg: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --accent-dark: #1d4ed8;
+  --correct: #15803d;
+  --correct-bg: #dcfce7;
+  --wrong: #b91c1c;
+  --wrong-bg: #fee2e2;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", Verdana, Arial, sans-serif;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 40px 36px;
+}
+
+.screen.hidden {
+  display: none;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.intro {
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 28px;
+  font-size: 1.05rem;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1.05rem;
+  margin-bottom: 28px;
+}
+
+.option select {
+  font-size: 1.1rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+}
+
+.primary-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: white;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.primary-btn:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+
+.progress {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+}
+
+.word-stage {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px dashed var(--border);
+}
+
+.word-display {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  word-break: break-word;
+}
+
+.answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.answer-form label {
+  font-size: 1.05rem;
+}
+
+.answer-form input {
+  font-size: 1.3rem;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  width: 100%;
+}
+
+.answer-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.answer-form input:disabled {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+.score {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 28px;
+  font-size: 1.05rem;
+}
+
+.result-table th,
+.result-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.result-row.correct td {
+  background: var(--correct-bg);
+}
+
+.result-row.wrong td {
+  background: var(--wrong-bg);
+}
+
+.result-mark {
+  font-weight: 700;
+}
+
+.result-mark.correct {
+  color: var(--correct);
+}
+
+.result-mark.wrong {
+  color: var(--wrong);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 28px 20px;
+  }
+
+  .word-display {
+    font-size: 2.2rem;
+  }
+}
